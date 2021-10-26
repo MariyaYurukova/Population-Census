@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <script
+            src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <header>
+        <th:block th:include="~{fragments/navbar}"></th:block>
+        <script src="/static/js/items.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    </header>
+    <main>
+        <div class="container">
+            <h1>Add a City!</h1>
+            <form th:action="@{/city/addCity}" method="post" th:object="${model}">
+                <div class="form-group w-25 " >
+                <label for="name"> Name</label>
+                <input type="text" class="form-control" id="name"  name="name" th:value="*{name}"  required="yes"/>
+            </div>
+                <br/>
+                <br/>
+                <div class="button-holder d-flex ">
+                    <button type="submit"  class="btn btn-success" style="margin-left: 20px">Add city</button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+    <footer>
+        <div th:replace="~{fragments/footer }"></div>
+    </footer>
+</div>
+</body>
+</html>
+
+

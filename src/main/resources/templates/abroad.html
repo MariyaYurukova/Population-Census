@@ -1,0 +1,240 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <script
+            src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container-fluid">
+    <header>
+        <th:block th:include="~{fragments/navbar}"></th:block>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script type = "text/javascript" src="/js/items.js"></script>
+        <script type = "text/javascript">
+            $(document).ready(function() {
+
+                        // SUBMIT FORM
+                        $("#customerForm").submit(function(event) {
+                            // Prevent the form from submitting via the browser.
+                            event.preventDefault();
+                            ajaxPost();
+                        });
+
+                        function ajaxPost() {
+
+                            // PREPARE FORM DATA
+                            let formData = {
+                                egn : $("#egn").val(),
+                                country : $("#country").val(),
+                                lastName: $("#lastName").val(),
+
+                            }
+
+                            // DO POST
+                            $.ajax({
+                                type : "POST",
+                                contentType : "application/json",
+                                url : window.location + "/addTown",
+                                data : JSON.stringify(formData),
+                                dataType : 'json',
+                                success : function(result) {
+                                    if (result.status == "success") {
+
+                                        $("#postResultDiv")
+                                            .html(
+                                                "<p style='background-color:green; color:white; margin-top: 10px'>"
+                                                + "Post Successfully!"
+                                                + "---> Congrats ! "
+                                                + result.object.lastName+"<br>"
+
+                                                +"Yours egn is: "
+                                                + result.object.egn
+
+                                                + "</p>"
+                                            );
+                                    } else {
+                                        $("#postResultDiv").html(
+                                            "<strong>Error</strong>");
+                                    }
+                                    console.log(result);
+                                },
+                                error : function(e) {
+                                    alert("Error!")
+                                    console.log("ERROR: ", e);
+                                }
+                            })
+
+                            $('#egn').val('');
+                            $('#country').val('');
+                            $('#lastName').val('');
+                        }
+            })
+        </script>
+    <script>
+
+      $(document).ready(function() {
+
+        $.getJSON('http://localhost:8000/abroad/allCountry' , function (json) {
+
+
+        let tr = [];
+        for (let i = 0; i < json.length; i++) {
+        tr.push('<tr>');
+        tr.push('<td style="display: none">' + json[i].id+'</td>');
+        tr.push('<td>' + json[i].egn + '</td>');
+        tr.push('<td>' + json[i].lastName+ '</td>');
+        tr.push('<td>' + json[i].country+ '</td>');
+
+
+        //  tr.push('<td><button class=\'edit\'>Edit</button>&nbsp;&nbsp;<button class=\'delete\' id=' + json[i].id + '>Delete</button></td>');
+        tr.push('<td><button  class=\'edit\' id=' + json[i].id + '>Edit</button>&nbsp;&nbsp;<button class=\'delete\' id=' + json[i].id + '>Delete</button></td>')
+        tr.push('</tr>');
+        }
+        $('table').append($(tr.join('')));
+        });
+        });
+
+      $(document).ready(function() {
+        $(document).delegate('.edit', 'click', function() {
+        let parent = $(this).parent().parent();
+
+        let id= parent.children("td:nth-child(1)");
+        let egn = parent.children("td:nth-child(2)");
+        let lastName= parent.children("td:nth-child(3)");
+        let country = parent.children("td:nth-child(4)");
+         let buttons = parent.children("td:nth-child(5)");
+
+        egn.html("<input type='text' id='egn' value='" + egn.html()+ "'/>");
+        lastName.html("<input type='text' id='lastName' value='" + lastName.html()+ "'/>");
+          country.html("<input type='text' id='country' value='" + country.html()+ "'/>");
+
+
+        buttons.html("<button id='save'  id='" + id.html()+ "'   >Save</button>&nbsp;&nbsp;<button class='delete' id='" + id.html()+ "'>Delete</button>");
+        });
+      });
+
+      $(document).ready(function() {
+          $(document).delegate('#save', 'click', function () {
+              let parent = $(this).parent().parent();
+
+              let id = parent.children("td:nth-child(1)");
+              let egn = parent.children("td:nth-child(2)");
+              let lastName = parent.children("td:nth-child(3)");
+              let country = parent.children("td:nth-child(4)");
+              let buttons = parent.children("td:nth-child(5)");
+
+              $.ajax({
+                  type: "POST",
+                  contentType: "application/json; charset=utf-8",
+                  url: "http://localhost:8000/abroad/save",
+                  data: JSON.stringify({
+                      'id': id.html(),
+                      'egn': egn.children("input[type=text]").val(),
+                      'lastName': lastName.children("input[type=text]").val(),
+                      'country': country.children("input[type=text]").val(),
+
+
+                  }),
+                  cache: false,
+                  success: function () {
+                      egn.html(egn.children("input[type=text]").val());
+                      lastName.html(lastName.children("input[type=text]").val());
+                      country.html(country.children("input[type=text]").val());
+                      buttons.html("<button class='edit' id='" + id.html() + "' >Edit</button>&nbsp;&nbsp;<button class='delete' id='" + id + "'>Delete</button>");
+                  },
+                  error: function () {
+                      $('#err').html('<span style=\'color:red; font-weight: bold; font-size: 30px;\'>Error updating record').fadeIn().fadeOut(4000, function () {
+                          $(this).remove();
+                      });
+                  }
+              });
+          });
+      });
+          $(document).ready(function() {
+              $(document).delegate('.delete', 'click', function () {
+                  if (confirm('Do you really want to delete record?')) {
+                      let id = $(this).attr('id');
+
+                      let parent = $(this).parent().parent();
+
+                      $.ajax({
+                          type: "POST",
+                          url: "http://localhost:8000/abroad/delete/" + id,
+                          cache: false,
+                          success: function () {
+                              parent.fadeOut('slow', function () {
+                                  $(this).remove();
+                              });
+                              location.reload(true)
+                          },
+                          error: function () {
+                              $('#err').html('<span style=\'color:red; font-weight: bold; font-size: 30px;\'>Error deleting record').fadeIn().fadeOut(4000, function () {
+                                  $(this).remove();
+                              });
+                          }
+                      });
+                  }
+              });
+          });
+        </script>
+
+            </header>
+    <main>
+        <div class="container">
+
+            <div style="margin-left: 40px; margin-top: 50px">Have you ever visit another country,tell us, which one is this country ???</div>
+            <div style="margin-left: 40px; margin-top: 30px">Have you ever been in abroad, if the answer  is yes, tell us this country???</div>
+
+            <form id="customerForm"  style="margin-top: 20px" >
+                <div class="form-group  col-sm-3 " >
+                    <input type="text" class="form-control"  id="egn" placeholder="your egn" name="egn" required="yes">
+                </div>
+                <div class="form-group  col-sm-3 " >
+                    <input type="text" class="form-control"  id="lastName" placeholder="last name" name="lastName" required="yes">
+                </div>
+                <div class="form-group  col-sm-3 " >
+                    <input type="text" class="form-control"  id="country" placeholder="Enter Country name" name="country" required="yes">
+                </div>
+                <button type="submit" id="submit" value="reset" class="btn btn-outline-success "  style="margin-left: 70px">Submit</button>
+
+            </form>
+            <div id="postResultDiv" class="form-group col-sm-4" style="justify-content: center" >
+            </div>
+
+          <div>After submit refresh the system!!!!!</div>
+            <botton  class="nav-item active" >
+                <a th:href="@{/abroad/}" class="btn btn-success font-weight-bold text-white"> refresh</a>
+            </botton>
+            <table border="3" class = "table justify-content-center  w-100" id="tableId">
+
+            <thead style="background: green" >
+            <tr >
+                <td style="display: none">id</td>
+                <td class="font-weight-bold; text-white">egn</td>
+                <td class="font-weight-bold; text-white">last name</td>
+                <td class="font-weight-bold; text-white">country</td>
+                <td class="font-weight-bold; text-white">action</td>
+            </tr>
+            </thead>
+            <tbody>
+            <td></td>
+            </tbody>
+        </table>
+            <a th:href = "@{/}" class="btn btn-success btn-sm mb-3"> Back </a>
+        </div>
+</main>
+<footer>
+    <div th:replace="~{fragments/footer }"></div>
+</footer>
+
+</div>
+</body>
+</html>
+

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <script
+            src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container-fluid">
+    <header>
+        <th:block th:include="~{fragments/navbar}"></th:block>
+        <script src="/js/items.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script type = "text/javascript" src="/js/items.js"></script>
+    </header>
+
+    <main>
+        <div class="container">
+            <div style="margin-top: 50px">
+                <h5>Add a new citizen!</h5>
+            </div>
+            <form th:action="@{/add}" method="post" th:object="${model}">
+
+                <div style="margin-left: 50px; color: crimson ">Back in index page and try again!!!!!!!!!</div>
+                <div class="row ">
+                    <div class="form-group justify-content-md-start  mt-md-5 " >
+                        <label for="firstName">First Name</label>
+                        <input type="text" class="form-control" id="firstName"  name="firstName" th:value="*{firstName}" required="yes" />
+                    </div>
+                    <div class="form-group justify-content-center mt-md-5 m-sm-5">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" class="form-control" id="lastName"  name="lastName" th:value="*{lastName}" required="yes"/>
+                    </div>
+                    <div class="form-group justify-content-end mt-md-5 ">
+                        <label for="egn">EGN</label>
+                        <input type="text" class="form-control" id="egn"  name="egn" th:value="*{egn}" required="yes"/>
+                    </div>
+                    <div class="form-group mt-md-5 m-sm-5">
+                        <label for="education">Education</label>
+                        <input type="text" class="form-control" id="education"  name="education" th:value="*{education}" required="yes" />
+                    </div>
+                </div>
+                <div  class="row  ">
+                    <div class="form-group w-25 ">
+                        <label for="selectAge" >Age</label>
+                        <select  multiple class="selectAge" name="age" id="selectAge" th:value="*{age}"  required="yes">
+                        </select>
+                        </label>
+                    </div>
+                    <div class="form-group w-50 ">
+                        <label for="city" >City</label>
+                        <select class="form-group w-50"  multiple  id="city"  th:field="*{city}" required="yes">
+                            <option th:each="c : ${city}"  th:value="${c.id}" th:text="${c.name}" ></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputDate" class="form-label">Register Date</label>
+                        <input type="date"  class="form-control" id="inputDate" th:field="*{today}" required="yes">
+                    </div>
+
+                </div>
+                <div class="button-holder d-flex justify-content-center">
+                    <button type="submit" class="btn btn-info col-2"> Save Employee</button>
+                </div>
+            </form>
+            <br/>
+            <br/>
+
+
+            <a th:href = "@{/}" class="btn btn-success btn-sm mb-3"> Back </a>
+        </div>
+    </main>
+    <footer>
+        <div th:replace="~{fragments/footer }"></div>
+    </footer>
+</div>
+</body>
+</html>
+
+
